@@ -1,0 +1,667 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Quiet Rooms</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Pico CSS v2 from its official CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+
+<!-- Preview-only fallback: switched on by the script at the bottom ONLY if the Pico file could not load
+     (for example in a sandboxed preview that blocks the CDN). When Pico loads, this block stays off. -->
+<style id="pico-fallback" media="not all">
+  :root{--pico-background-color:#fff;--pico-color:#373c44;--pico-muted-color:#646b79;--pico-muted-border-color:#e7eaf0;--pico-primary:#0172ad;--pico-primary-inverse:#fff;--pico-card-sectioning-background-color:#f4f6f9;--pico-border-radius:.25rem;--pico-spacing:1rem;--pico-outline-width:3px;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root{--pico-background-color:#13171f;--pico-color:#c2c7d0;--pico-muted-color:#a3aab5;--pico-muted-border-color:#2d3441;--pico-primary:#8ab4f8;--pico-primary-inverse:#0b1020;--pico-card-sectioning-background-color:#1b212c;color-scheme:dark}}
+  body{font:inherit;line-height:1.5;font-size:1rem}
+  .container{width:100%;max-width:720px;margin:0 auto;padding:0 1rem;box-sizing:border-box}
+  h1,h2,h3{line-height:1.2;margin:0 0 .75rem}h1{font-size:1.75rem}h2{font-size:1.35rem}h3{font-size:1.15rem}
+  article{border:1px solid var(--pico-muted-border-color);border-radius:.5rem;padding:1rem;margin:0 0 1rem;background:var(--pico-background-color)}
+  article footer{margin-top:1rem}
+  hgroup p{margin:0 0 .5rem;color:var(--pico-muted-color)}
+  nav,nav ul{display:flex;align-items:center;gap:1rem;list-style:none;padding:0;margin:0}nav{justify-content:space-between;padding:.5rem 0}
+  a{color:var(--pico-primary)}
+  label{display:block;margin:.75rem 0 .25rem}
+  input:not([type=checkbox]),select{display:block;width:100%;box-sizing:border-box;padding:.65rem;font:inherit;border:1px solid #7b8495;border-radius:.25rem;background:var(--pico-background-color);color:var(--pico-color);margin-bottom:.25rem}
+  button,[role=button]{font:inherit;padding:.65rem 1rem;border-radius:.25rem;border:1px solid var(--pico-primary);background:var(--pico-primary);color:var(--pico-primary-inverse);cursor:pointer;margin:.25rem 0}
+  button.secondary{background:#5d6b89;border-color:#5d6b89;color:#fff}
+  button.outline{background:transparent;color:var(--pico-primary)}button.outline.secondary{color:var(--pico-muted-color);border-color:var(--pico-muted-color)}
+  table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--pico-muted-border-color)}
+  details{margin-bottom:1rem}summary{cursor:pointer}fieldset{border:0;padding:0;margin:0}
+  dialog{border:1px solid var(--pico-muted-border-color);border-radius:.5rem;padding:0;background:var(--pico-background-color);color:var(--pico-color)}dialog article{margin:0;border:0}
+  dialog header button[rel=prev]{float:right;width:2rem;height:2rem;padding:0}dialog header button[rel=prev]::before{content:"\00d7"}
+</style>
+
+<style>
+  /* Small layout adjustments only; everything else is Pico's own styling. */
+  :root{--err:#b3261e}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--err:#ff9a8f}}
+  :root[data-theme="dark"]{--err:#ff9a8f}
+  body{background:var(--pico-background-color);font:inherit;color:var(--pico-color)}
+  :where(a,button,input,select,textarea,summary,[role=button]):focus-visible{outline:3px solid var(--pico-primary);outline-offset:2px}
+  h1:focus{outline:none}
+  .skip{position:absolute;left:-999px;top:0;background:var(--pico-background-color);padding:.5rem 1rem;z-index:20}
+  .skip:focus{left:0}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  header nav{flex-wrap:wrap}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .block{width:100%}
+  .step{margin:0 0 .25rem;color:var(--pico-muted-color);font-size:.875rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem;list-style:none;padding:0;margin:0 0 1rem}
+  .chips li{list-style:none;margin:0;padding:.15rem .65rem;border:1px solid var(--pico-muted-border-color);border-radius:1rem;font-size:.875rem;background:var(--pico-card-sectioning-background-color);color:var(--pico-color)}
+  .photo{aspect-ratio:16/9;max-width:100%;display:grid;place-items:center;border-radius:var(--pico-border-radius);margin-bottom:1.25rem;font-weight:600;text-align:center;padding:1rem}
+  .err{color:var(--err)}
+  .ref{font-size:1.75rem;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;padding:.1rem .6rem;border-radius:1rem;font-size:.8rem;font-weight:600;background:var(--pico-primary);color:var(--pico-primary-inverse)}
+  .actions{display:grid;gap:.5rem}
+  .actions>*{margin:0}
+  @media (min-width:576px){.actions{grid-template-columns:auto auto;justify-content:start}}
+</style>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="container">
+  <nav aria-label="Main">
+    <ul><li><strong>Quiet Rooms</strong></li></ul>
+    <ul>
+      <li><a href="#" data-go="home" data-nav="home">Find a room</a></li>
+      <li><a href="#" data-go="bookings" data-nav="bookings">My bookings</a></li>
+      <li><a href="#" data-nyi>Help</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main" class="container">
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 1: HOME (quick search: date, time, group size) — START          -->
+  <!-- ====================================================================== -->
+  <section id="screen-home" aria-labelledby="h-home">
+    <h1 id="h-home">Find a quiet study room</h1>
+    <p>Pick a date, time and group size. We will show the rooms that are free.</p>
+
+    <article id="home-errors" role="alert" hidden>
+      <h2>Check your search</h2>
+      <ul id="home-error-list"></ul>
+    </article>
+
+    <form id="search-form" novalidate>
+      <label for="f-date">Date</label>
+      <input id="f-date" type="date" required aria-describedby="f-date-msg">
+      <small id="f-date-msg"></small>
+
+      <div class="row2">
+        <div>
+          <label for="f-start">Start time</label>
+          <select id="f-start" aria-describedby="f-start-msg"></select>
+          <small id="f-start-msg"></small>
+        </div>
+        <div>
+          <label for="f-end">End time</label>
+          <select id="f-end" aria-describedby="f-end-msg"></select>
+          <small id="f-end-msg"></small>
+        </div>
+      </div>
+
+      <label for="f-size">Number of people</label>
+      <input id="f-size" type="number" inputmode="numeric" min="1" max="10" step="1" required aria-describedby="f-size-msg">
+      <small id="f-size-msg"></small>
+
+      <button type="submit" class="block">Find rooms</button>
+    </form>
+  </section>
+  <!-- SCREEN 1: HOME — END -->
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 2: RESULTS LIST (filters: building, facilities) — START         -->
+  <!-- ====================================================================== -->
+  <section id="screen-results" aria-labelledby="h-results" hidden>
+    <p class="step">Step 1 of 3 · Choose a room</p>
+    <h1 id="h-results">Available rooms</h1>
+    <p id="res-summary"></p>
+    <p><button type="button" class="outline secondary" data-go="home">Change search</button></p>
+
+    <details open>
+      <summary>Filters <span id="filter-count"></span></summary>
+      <label for="f-building">Building</label>
+      <select id="f-building"></select>
+      <fieldset id="f-fac">
+        <legend>Facilities</legend>
+      </fieldset>
+      <button type="button" class="outline secondary" id="clear-filters" hidden>Clear filters</button>
+    </details>
+
+    <h2 id="res-heading">Rooms</h2>
+    <div id="res-list"></div>
+    <div id="res-empty" hidden>
+      <article>
+        <p><strong>No rooms match your search.</strong></p>
+        <p>Try removing a filter, choosing a different time, or reducing the group size.</p>
+        <div class="actions">
+          <button type="button" class="outline" id="empty-clear">Clear filters</button>
+          <button type="button" data-go="home">Change search</button>
+        </div>
+      </article>
+    </div>
+
+    <details id="res-unavailable" hidden>
+      <summary id="res-unavailable-summary"></summary>
+      <ul id="res-unavailable-list"></ul>
+    </details>
+  </section>
+  <!-- SCREEN 2: RESULTS LIST — END -->
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 3: ROOM DETAILS (photo placeholder + facilities) — START        -->
+  <!-- ====================================================================== -->
+  <section id="screen-room" aria-labelledby="h-room" hidden>
+    <p><button type="button" class="outline secondary" data-go="results">← Back to results</button></p>
+    <p class="step">Step 2 of 3 · Check the room</p>
+    <h1 id="h-room">Room</h1>
+    <p id="room-where"></p>
+    <div id="room-photo" class="photo" role="img"></div>
+
+    <article>
+      <h2>Your slot</h2>
+      <p id="room-slot"></p>
+    </article>
+
+    <h2>Facilities</h2>
+    <ul id="room-facilities" class="chips"></ul>
+
+    <h2>About this room</h2>
+    <p id="room-about"></p>
+
+    <details>
+      <summary>Room rules</summary>
+      <ul>
+        <li>Keep noise to a low murmur. These are quiet study rooms.</li>
+        <li>Check in within 10 minutes of your start time or the room is released.</li>
+        <li>Bring your student card. Staff may ask to see it.</li>
+      </ul>
+    </details>
+
+    <div class="actions">
+      <button type="button" id="book-this">Book this room</button>
+      <a href="#" data-nyi>Report a problem with this room</a>
+    </div>
+  </section>
+  <!-- SCREEN 3: ROOM DETAILS — END -->
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 4: CONFIRM BOOKING — START                                      -->
+  <!-- ====================================================================== -->
+  <section id="screen-confirm" aria-labelledby="h-confirm" hidden>
+    <p><button type="button" class="outline secondary" data-go="room">← Back to room</button></p>
+    <p class="step">Step 3 of 3 · Confirm</p>
+    <h1 id="h-confirm">Confirm your booking</h1>
+
+    <article id="confirm-errors" role="alert" hidden>
+      <h2>There is a problem</h2>
+      <ul id="confirm-error-list"></ul>
+    </article>
+
+    <table id="confirm-table"><tbody></tbody></table>
+    <p>
+      <a href="#" data-go="results">Change room</a> ·
+      <a href="#" data-go="home">Change date or time</a>
+    </p>
+
+    <form id="confirm-form" novalidate>
+      <label for="c-size">Number of people</label>
+      <input id="c-size" type="number" inputmode="numeric" min="1" step="1" aria-describedby="c-size-msg">
+      <small id="c-size-msg"></small>
+
+      <label for="c-purpose">What will you use the room for? (optional)</label>
+      <select id="c-purpose">
+        <option>Group study</option>
+        <option>Exam revision</option>
+        <option>Project meeting</option>
+        <option>Presentation practice</option>
+      </select>
+
+      <label for="c-checkin">
+        <input id="c-checkin" type="checkbox" aria-describedby="c-checkin-msg">
+        I will check in at the room within 10 minutes of the start time.
+      </label>
+      <small id="c-checkin-msg"></small>
+
+      <button type="submit" class="block">Confirm booking</button>
+    </form>
+  </section>
+  <!-- SCREEN 4: CONFIRM BOOKING — END -->
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 5: SUCCESS (booking reference) — START                          -->
+  <!-- ====================================================================== -->
+  <section id="screen-success" aria-labelledby="h-success" hidden>
+    <h1 id="h-success">Booking confirmed</h1>
+    <p>Your room is reserved. Show this reference if anyone asks.</p>
+    <article>
+      <p>Booking reference</p>
+      <p><strong class="ref" id="success-ref"></strong></p>
+      <table id="success-table"><tbody></tbody></table>
+    </article>
+    <div class="actions">
+      <button type="button" data-go="bookings">View my bookings</button>
+      <button type="button" class="outline" data-go="home">Book another room</button>
+      <a href="#" data-nyi>Add to calendar</a>
+    </div>
+  </section>
+  <!-- SCREEN 5: SUCCESS — END -->
+
+  <!-- ====================================================================== -->
+  <!-- SCREEN 6: MY BOOKINGS — START                                          -->
+  <!-- ====================================================================== -->
+  <section id="screen-bookings" aria-labelledby="h-bookings" hidden>
+    <h1 id="h-bookings">My bookings</h1>
+    <p id="bookings-count"></p>
+    <div id="bookings-msg" role="status" tabindex="-1"></div>
+    <div id="bookings-list"></div>
+    <div id="bookings-empty" hidden>
+      <article>
+        <p><strong>You have no upcoming bookings.</strong></p>
+        <button type="button" data-go="home">Find a room</button>
+      </article>
+    </div>
+  </section>
+  <!-- SCREEN 6: MY BOOKINGS — END -->
+
+</main>
+
+<!-- Shared message for anything outside the main task -->
+<dialog id="nyi" aria-labelledby="nyi-title">
+  <article>
+    <header>
+      <button type="button" aria-label="Close" rel="prev" data-close></button>
+      <p id="nyi-title"><strong>Not available</strong></p>
+    </header>
+    <p>This part isn't in the prototype yet.</p>
+    <footer><button type="button" data-close>OK</button></footer>
+  </article>
+</dialog>
+
+<div id="announce" class="visually-hidden" role="status" aria-live="polite"></div>
+
+<script>
+/* ================= FAKE DATA (in memory only) ================= */
+const BUILDINGS = {
+  ml: { name: 'Marlowe Library',         color: '#c9dcef', ink: '#0f2a44' },
+  ab: { name: 'Ashdown Building',        color: '#d3e6cb', ink: '#173010' },
+  ks: { name: 'Kingsley Science Centre', color: '#efdcc4', ink: '#432808' }
+};
+const FACILITIES = { whiteboard: 'Whiteboard', screen: 'Wall screen', power: 'Power sockets', stepfree: 'Step-free access', daylight: 'Natural light' };
+const ROOMS = [
+  { id:'ml-g04', b:'ml', name:'Room G.04', floor:'Ground', cap:2,  fac:['power','stepfree','daylight'], about:'A compact ground-floor room for pair work or a quiet video call. Next to the library entrance.' },
+  { id:'ml-102', b:'ml', name:'Room 1.02', floor:'1',      cap:4,  fac:['whiteboard','power'],           about:'A small room with a large table and a wall-mounted whiteboard. Good for problem sheets.' },
+  { id:'ml-108', b:'ml', name:'Room 1.08', floor:'1',      cap:6,  fac:['whiteboard','screen','power'],  about:'A mid-sized room with a wall screen you can connect a laptop to by HDMI.' },
+  { id:'ml-201', b:'ml', name:'Room 2.01', floor:'2',      cap:8,  fac:['screen','whiteboard','power','daylight'], about:'A bright room overlooking the quad, with a wall screen and plenty of desk space.' },
+  { id:'ab-012', b:'ab', name:'Room 0.12', floor:'Ground', cap:4,  fac:['whiteboard','stepfree'],        about:'Ground-floor room with level access from the main corridor. Whiteboard on the long wall.' },
+  { id:'ab-115', b:'ab', name:'Room 1.15', floor:'1',      cap:5,  fac:['screen','power','daylight'],    about:'A quiet corner room with two windows and a wall screen for rehearsing presentations.' },
+  { id:'ab-204', b:'ab', name:'Room 2.04', floor:'2',      cap:10, fac:['screen','whiteboard','power'],  about:'The largest room in the building. Seats ten around a long table, with a screen and two whiteboards.' },
+  { id:'ks-103', b:'ks', name:'Room S1.03', floor:'1',     cap:3,  fac:['power','daylight'],             about:'A small, calm room above the main atrium. Power sockets at every seat.' },
+  { id:'ks-210', b:'ks', name:'Room S2.10', floor:'2',     cap:6,  fac:['whiteboard','screen','stepfree'], about:'Lift access from the atrium. Whiteboard wall and a screen for sharing lab write-ups.' },
+  { id:'ks-214', b:'ks', name:'Room S2.14', floor:'2',     cap:4,  fac:['power','whiteboard','daylight'], about:'A bright room at the end of the second-floor corridor. Fewer passers-by than most.' }
+];
+/* [room, days from today, from, to] */
+const SEED_BUSY = [
+  ['ml-102',1,'14:00','16:00'], ['ml-108',1,'13:00','15:00'], ['ab-012',1,'15:00','17:00'],
+  ['ab-204',1,'14:00','16:00'], ['ks-103',1,'14:00','15:00'], ['ks-210',1,'12:00','14:00'], ['ml-201',1,'09:00','11:00'],
+  ['ml-201',0,'09:00','12:00'], ['ab-115',0,'13:00','15:00'], ['ks-214',0,'16:00','18:00'], ['ml-108',2,'10:00','12:00']
+];
+
+/* ================= HELPERS ================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const roomById = id => ROOMS.find(r => r.id === id);
+const hm = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const parseYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const daysFromToday = s => Math.round((parseYmd(s) - today0()) / 864e5);
+const shortFmt = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const longFmt  = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+function rel(s) { const n = daysFromToday(s); return n === 0 ? ' (today)' : n === 1 ? ' (tomorrow)' : ''; }
+const niceDate = s => shortFmt.format(parseYmd(s)).replace(',', '') + rel(s);
+const longDate = s => longFmt.format(parseYmd(s)).replace(',', '') + rel(s);
+function fmtT(m) {
+  const h = Math.floor(m / 60), mm = m % 60;
+  return (((h + 11) % 12) + 1) + (mm ? ':' + String(mm).padStart(2, '0') : '') + (h >= 12 ? 'pm' : 'am');
+}
+const range = (s, e) => fmtT(s) + '–' + fmtT(e);
+const plural = n => n + (n === 1 ? ' person' : ' people');
+function announce(msg) { const a = $('#announce'); a.textContent = ''; setTimeout(() => { a.textContent = msg; }, 50); }
+
+/* ================= STATE ================= */
+const state = {
+  search: { date: ymd(today0()), start: hm('14:00'), end: hm('15:00'), size: 2 },
+  fBuilding: 'all',
+  fFac: new Set(),
+  roomId: null,
+  bookings: [],
+  newRef: null,
+  cancelingId: null,
+  lastCancelled: null,
+  focusSel: null
+};
+state.bookings.push({ id: 'seed1', ref: 'QR-4F8TW', roomId: 'ab-115', date: ymd(addDays(today0(), 4)), start: hm('10:00'), end: hm('12:00'), size: 3, purpose: 'Exam revision' });
+
+/* ================= AVAILABILITY ================= */
+function busyIntervals(roomId, date) {
+  const off = daysFromToday(date);
+  const out = SEED_BUSY.filter(x => x[0] === roomId && x[1] === off).map(x => ({ s: hm(x[2]), e: hm(x[3]) }));
+  state.bookings.filter(b => b.roomId === roomId && b.date === date).forEach(b => out.push({ s: b.start, e: b.end }));
+  return out;
+}
+const clash = (roomId, date, s, e) => busyIntervals(roomId, date).find(i => s < i.e && e > i.s);
+const myClash = (date, s, e) => state.bookings.find(b => b.date === date && s < b.end && e > b.start);
+
+/* ================= NAVIGATION ================= */
+const SCREENS = ['home', 'results', 'room', 'confirm', 'success', 'bookings'];
+function go(name, initial) {
+  SCREENS.forEach(n => { $('#screen-' + n).hidden = n !== name; });
+  ({ home: renderHome, results: renderResults, room: renderRoom, confirm: renderConfirm, success: renderSuccess, bookings: renderBookings })[name]();
+  const navKey = name === 'bookings' ? 'bookings' : 'home';
+  $$('[data-nav]').forEach(a => { if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  const h = $('#screen-' + name + ' h1');
+  h.setAttribute('tabindex', '-1');
+  window.scrollTo(0, 0);
+  if (!initial) h.focus({ preventScroll: true });
+  if (state.focusSel) { const el = $(state.focusSel); if (el) el.focus(); state.focusSel = null; }
+}
+function showNotYet() {
+  const d = $('#nyi');
+  if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+}
+
+/* ================= SCREEN 1: HOME ================= */
+const HELP = {
+  date:  'Rooms can be booked up to 14 days ahead.',
+  start: 'Rooms are open 8am to 10pm.',
+  end:   'Up to 3 hours per booking.',
+  size:  'Rooms seat 2 to 10 people.'
+};
+function initHome() {
+  const st = $('#f-start'), en = $('#f-end');
+  for (let m = 480; m <= 1290; m += 30) st.add(new Option(fmtT(m), m));
+  for (let m = 510; m <= 1320; m += 30) en.add(new Option(fmtT(m), m));
+  const d = $('#f-date');
+  d.min = ymd(today0());
+  d.max = ymd(addDays(today0(), 14));
+}
+function setField(key, msg) {
+  const input = $('#f-' + key), small = $('#f-' + key + '-msg');
+  if (msg) { input.setAttribute('aria-invalid', 'true'); small.textContent = msg; small.classList.add('err'); }
+  else { input.removeAttribute('aria-invalid'); small.textContent = HELP[key]; small.classList.remove('err'); }
+}
+function renderHome() {
+  const s = state.search;
+  $('#f-date').value = s.date; $('#f-start').value = s.start; $('#f-end').value = s.end; $('#f-size').value = s.size;
+  ['date', 'start', 'end', 'size'].forEach(k => setField(k, ''));
+  $('#home-errors').hidden = true;
+  updateDateHint();
+}
+function updateDateHint() {
+  const v = $('#f-date').value;
+  if (v && !$('#f-date').hasAttribute('aria-invalid') && parseYmd(v) >= today0()) $('#f-date-msg').textContent = longDate(v) + '. ' + HELP.date;
+}
+function validateSearch(v) {
+  const e = {}, t0 = today0();
+  if (!v.date) e.date = 'Choose a date.';
+  else if (parseYmd(v.date) < t0) e.date = 'That date has passed. Choose today or a later date.';
+  else if (parseYmd(v.date) > addDays(t0, 14)) e.date = 'You can book up to 14 days ahead. Choose a date on or before ' + longDate(ymd(addDays(t0, 14))) + '.';
+  if (v.end <= v.start) e.end = 'End time must be after the start time.';
+  else if (v.end - v.start > 180) e.end = 'Bookings can be up to 3 hours. Choose an earlier end time.';
+  else if (!e.date && v.date === ymd(t0)) {
+    const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
+    if (v.end <= nowMin) e.end = 'That time has already passed today. Choose a later time or another date.';
+  }
+  const n = Number(v.size);
+  if (v.size === '' || Number.isNaN(n)) e.size = 'Enter how many people need the room.';
+  else if (!Number.isInteger(n) || n < 1 || n > 10) e.size = 'Enter a whole number from 1 to 10. Our rooms seat up to 10 people.';
+  return e;
+}
+$('#f-date').addEventListener('input', () => { setField('date', ''); updateDateHint(); });
+$('#search-form').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const v = { date: $('#f-date').value, start: +$('#f-start').value, end: +$('#f-end').value, size: $('#f-size').value };
+  const errs = validateSearch(v);
+  ['date', 'start', 'end', 'size'].forEach(k => setField(k, errs[k] || ''));
+  const keys = Object.keys(errs);
+  const box = $('#home-errors');
+  if (keys.length) {
+    $('#home-error-list').innerHTML = keys.map(k => `<li><a href="#f-${k}" data-focus="f-${k}">${errs[k]}</a></li>`).join('');
+    box.hidden = false;
+    $('#f-' + keys[0]).focus();
+    return;
+  }
+  box.hidden = true;
+  state.search = { date: v.date, start: v.start, end: v.end, size: Number(v.size) };
+  go('results');
+});
+
+/* ================= SCREEN 2: RESULTS ================= */
+function initFilters() {
+  const sel = $('#f-building');
+  sel.add(new Option('All buildings', 'all'));
+  Object.entries(BUILDINGS).forEach(([k, b]) => sel.add(new Option(b.name, k)));
+  $('#f-fac').insertAdjacentHTML('beforeend', Object.entries(FACILITIES).map(([k, l]) =>
+    `<label><input type="checkbox" name="fac" value="${k}"> ${l}</label>`).join(''));
+  sel.addEventListener('change', () => { state.fBuilding = sel.value; renderResults(true); });
+  $$('#f-fac input').forEach(cb => cb.addEventListener('change', () => {
+    if (cb.checked) state.fFac.add(cb.value); else state.fFac.delete(cb.value);
+    renderResults(true);
+  }));
+  const clear = () => { state.fBuilding = 'all'; state.fFac.clear(); renderResults(); $('#f-building').focus(); };
+  $('#clear-filters').addEventListener('click', clear);
+  $('#empty-clear').addEventListener('click', clear);
+}
+function renderResults(keepFocus) {
+  const s = state.search;
+  $('#res-summary').textContent = plural(s.size) + ' · ' + niceDate(s.date) + ' · ' + range(s.start, s.end);
+  $('#f-building').value = state.fBuilding;
+  $$('#f-fac input').forEach(cb => { cb.checked = state.fFac.has(cb.value); });
+  const active = (state.fBuilding !== 'all' ? 1 : 0) + state.fFac.size;
+  $('#filter-count').textContent = active ? '(' + active + ' on)' : '';
+  $('#clear-filters').hidden = !active;
+
+  const matches = ROOMS.filter(r => (state.fBuilding === 'all' || r.b === state.fBuilding) && [...state.fFac].every(f => r.fac.includes(f)));
+  const avail = [], unavail = [];
+  matches.forEach(r => {
+    if (r.cap < s.size) unavail.push({ r, why: 'Seats ' + r.cap + ', you need ' + s.size });
+    else { const c = clash(r.id, s.date, s.start, s.end); if (c) unavail.push({ r, why: 'Booked ' + range(c.s, c.e) }); else avail.push(r); }
+  });
+  avail.sort((a, b) => a.cap - b.cap);
+
+  $('#res-heading').textContent = avail.length + (avail.length === 1 ? ' room available' : ' rooms available');
+  $('#res-list').innerHTML = avail.map(r => {
+    const b = BUILDINGS[r.b];
+    return `<article>
+      <hgroup><h3>${r.name}</h3><p>${b.name} · Floor ${r.floor}</p></hgroup>
+      <p>Seats up to ${r.cap} · Free ${range(s.start, s.end)}</p>
+      <ul class="chips">${r.fac.map(f => `<li>${FACILITIES[f]}</li>`).join('')}</ul>
+      <footer><button type="button" data-room="${r.id}" aria-label="View ${r.name}, ${b.name}">View room</button></footer>
+    </article>`;
+  }).join('');
+  $('#res-empty').hidden = avail.length > 0;
+  const ud = $('#res-unavailable');
+  ud.hidden = unavail.length === 0;
+  $('#res-unavailable-summary').textContent = 'Not available (' + unavail.length + ')';
+  $('#res-unavailable-list').innerHTML = unavail.map(u => `<li>${u.r.name}, ${BUILDINGS[u.r.b].name}: ${u.why}</li>`).join('');
+  announce(avail.length + (avail.length === 1 ? ' room available' : ' rooms available'));
+}
+
+/* ================= SCREEN 3: ROOM DETAILS ================= */
+function renderRoom() {
+  const r = roomById(state.roomId), b = BUILDINGS[r.b], s = state.search;
+  $('#h-room').textContent = r.name;
+  $('#room-where').textContent = b.name + ' · Floor ' + r.floor + ' · Seats up to ' + r.cap;
+  const p = $('#room-photo');
+  p.style.background = b.color; p.style.color = b.ink;
+  p.setAttribute('aria-label', 'Photo placeholder for ' + r.name);
+  p.textContent = 'Photo of ' + r.name;
+  $('#room-slot').textContent = niceDate(s.date) + ', ' + range(s.start, s.end) + ' · ' + plural(s.size) + ' · Free';
+  $('#room-facilities').innerHTML = r.fac.map(f => `<li>${FACILITIES[f]}</li>`).join('');
+  $('#room-about').textContent = r.about;
+}
+$('#book-this').addEventListener('click', () => go('confirm'));
+
+/* ================= SCREEN 4: CONFIRM ================= */
+function summaryRows(r, date, s, e, size) {
+  return `<tr><th scope="row">Room</th><td>${r.name}</td></tr>
+    <tr><th scope="row">Building</th><td>${BUILDINGS[r.b].name}, floor ${r.floor}</td></tr>
+    <tr><th scope="row">Date</th><td>${niceDate(date)}</td></tr>
+    <tr><th scope="row">Time</th><td>${range(s, e)}</td></tr>
+    <tr><th scope="row">People</th><td>${size}</td></tr>`;
+}
+function setConfirmMsg(id, msg) {
+  const input = $('#' + id), small = $('#' + id + '-msg');
+  if (msg) { input.setAttribute('aria-invalid', 'true'); small.textContent = msg; small.classList.add('err'); }
+  else { input.removeAttribute('aria-invalid'); small.textContent = ''; small.classList.remove('err'); }
+}
+function renderConfirm() {
+  const r = roomById(state.roomId), s = state.search;
+  $('#confirm-table tbody').innerHTML = summaryRows(r, s.date, s.start, s.end, s.size);
+  $('#c-size').value = s.size;
+  $('#c-size').max = r.cap;
+  $('#c-checkin').checked = false;
+  setConfirmMsg('c-size', ''); setConfirmMsg('c-checkin', '');
+  $('#c-size-msg').textContent = 'This room seats up to ' + r.cap + '.';
+  $('#confirm-errors').hidden = true;
+}
+$('#c-size').addEventListener('input', () => { $('#c-size').removeAttribute('aria-invalid'); $('#c-size-msg').classList.remove('err'); });
+$('#confirm-form').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const r = roomById(state.roomId), s = state.search, errs = [];
+  const n = Number($('#c-size').value);
+  const sizeRaw = $('#c-size').value;
+  if (sizeRaw === '' || !Number.isInteger(n) || n < 1) errs.push(['c-size', 'Enter how many people will use the room, as a whole number.']);
+  else if (n > r.cap) errs.push(['c-size', r.name + ' seats ' + r.cap + '. Enter a number from 1 to ' + r.cap + ', or go back and choose a larger room.']);
+  if (!$('#c-checkin').checked) errs.push(['c-checkin', 'Tick the box to confirm you will check in on time.']);
+  setConfirmMsg('c-size', ''); setConfirmMsg('c-checkin', '');
+  $('#c-size-msg').textContent = 'This room seats up to ' + r.cap + '.';
+  errs.forEach(([id, m]) => setConfirmMsg(id, m));
+  const general = [];
+  if (!errs.length) {
+    if (clash(r.id, s.date, s.start, s.end)) general.push(['screen-results', 'Sorry, ' + r.name + ' is no longer free at that time. Go back and choose another room.']);
+    const mine = myClash(s.date, s.start, s.end);
+    if (mine) general.push(['screen-bookings', 'You already have a booking at that time (' + mine.ref + '). Cancel it in My bookings first, or choose a different time.']);
+  }
+  const all = errs.concat(general);
+  if (all.length) {
+    $('#confirm-error-list').innerHTML = all.map(([id, m]) => `<li><a href="#${id}" data-focus="${id}">${m}</a></li>`).join('');
+    $('#confirm-errors').hidden = false;
+    const first = errs[0] ? $('#' + errs[0][0]) : $('#confirm-errors');
+    if (first) { if (first === $('#confirm-errors')) first.setAttribute('tabindex', '-1'); first.focus(); }
+    return;
+  }
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let ref;
+  do { ref = 'QR-' + Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
+  while (state.bookings.some(b => b.ref === ref));
+  const booking = { id: 'b' + Date.now(), ref, roomId: r.id, date: s.date, start: s.start, end: s.end, size: n, purpose: $('#c-purpose').value };
+  state.bookings.push(booking);
+  state.newRef = ref;
+  state.lastBooking = booking;
+  state.lastCancelled = null;
+  go('success');
+});
+
+/* ================= SCREEN 5: SUCCESS ================= */
+function renderSuccess() {
+  const b = state.lastBooking;
+  $('#success-ref').textContent = b.ref;
+  $('#success-table tbody').innerHTML = summaryRows(roomById(b.roomId), b.date, b.start, b.end, b.size);
+  announce('Booking confirmed. Reference ' + b.ref.split('').join(' '));
+}
+
+/* ================= SCREEN 6: MY BOOKINGS ================= */
+function sortedBookings() { return state.bookings.slice().sort((a, b) => a.date.localeCompare(b.date) || a.start - b.start); }
+function renderBookings() {
+  const list = sortedBookings();
+  $('#bookings-count').textContent = list.length ? list.length + (list.length === 1 ? ' upcoming booking' : ' upcoming bookings') : '';
+  $('#bookings-empty').hidden = list.length > 0;
+  $('#bookings-list').innerHTML = list.map(b => {
+    const r = roomById(b.roomId), asking = state.cancelingId === b.id;
+    return `<article id="bk-${b.id}">
+      <hgroup>
+        <h2>${r.name}, ${BUILDINGS[r.b].name}</h2>
+        <p>${niceDate(b.date)} · ${range(b.start, b.end)}</p>
+      </hgroup>
+      <p>${plural(b.size)} · ${b.purpose} · Reference <strong>${b.ref}</strong> ${b.ref === state.newRef ? '<span class="tag">Just booked</span>' : ''}</p>
+      <footer>
+        ${asking
+          ? `<p><strong>Cancel this booking?</strong> The room will be released for other students.</p>
+             <div class="actions">
+               <button type="button" class="secondary" data-action="cancel-yes" data-id="${b.id}">Yes, cancel booking</button>
+               <button type="button" class="outline" id="keep-${b.id}" data-action="cancel-no" data-id="${b.id}">Keep booking</button>
+             </div>`
+          : `<div class="actions">
+               <button type="button" class="outline secondary" id="cancel-${b.id}" data-action="cancel-ask" data-id="${b.id}">Cancel booking</button>
+               <a href="#" data-nyi>Add to calendar</a>
+             </div>`}
+      </footer>
+    </article>`;
+  }).join('');
+  const msg = $('#bookings-msg');
+  if (state.lastCancelled) {
+    msg.innerHTML = `<article><p>Booking <strong>${state.lastCancelled.ref}</strong> was cancelled.</p>
+      <button type="button" class="outline" data-action="undo">Undo</button></article>`;
+  } else msg.innerHTML = '';
+  if (state.focusSel) { const el = $(state.focusSel); if (el) el.focus(); state.focusSel = null; }
+}
+
+/* ================= EVENTS ================= */
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-go],[data-nyi],[data-room],[data-action],[data-close],[data-focus]');
+  if (!t) return;
+  if (t.matches('a')) ev.preventDefault();
+  if (t.hasAttribute('data-close')) { const d = $('#nyi'); if (d.close) d.close(); else d.removeAttribute('open'); return; }
+  if (t.hasAttribute('data-nyi')) { showNotYet(); return; }
+  if (t.dataset.focus) {
+    if (t.dataset.focus.startsWith('screen-')) go(t.dataset.focus.replace('screen-', ''));
+    else { const el = $('#' + t.dataset.focus); if (el) el.focus(); }
+    return;
+  }
+  if (t.dataset.go) {
+    if (t.dataset.go !== 'bookings') { state.cancelingId = null; }
+    go(t.dataset.go); return;
+  }
+  if (t.dataset.room) { state.roomId = t.dataset.room; go('room'); return; }
+  const id = t.dataset.id;
+  switch (t.dataset.action) {
+    case 'cancel-ask': state.cancelingId = id; state.focusSel = '#keep-' + id; renderBookings(); break;
+    case 'cancel-no':  state.cancelingId = null; state.focusSel = '#cancel-' + id; renderBookings(); break;
+    case 'cancel-yes': {
+      const b = state.bookings.find(x => x.id === id);
+      state.bookings = state.bookings.filter(x => x.id !== id);
+      state.lastCancelled = b; state.cancelingId = null;
+      if (state.newRef === b.ref) state.newRef = null;
+      renderBookings();
+      $('#bookings-msg').focus();
+      announce('Booking ' + b.ref + ' cancelled.');
+      break;
+    }
+    case 'undo': {
+      const b = state.lastCancelled;
+      if (b && !myClash(b.date, b.start, b.end) && !clash(b.roomId, b.date, b.start, b.end)) {
+        state.bookings.push(b); state.lastCancelled = null; state.newRef = b.ref;
+        renderBookings(); $('#bookings-count').scrollIntoView({ block: 'nearest' });
+        announce('Booking ' + b.ref + ' restored.');
+      } else {
+        $('#bookings-msg').innerHTML = '<article><p class="err">That room has been taken since you cancelled, so the booking cannot be restored.</p></article>';
+        state.lastCancelled = null;
+      }
+      break;
+    }
+  }
+});
+
+/* ================= START UP ================= */
+function picoLoaded() { return !!getComputedStyle(document.documentElement).getPropertyValue('--pico-primary').trim(); }
+function checkPico() { if (!picoLoaded()) $('#pico-fallback').media = 'all'; }
+initHome();
+initFilters();
+checkPico();
+window.addEventListener('load', checkPico);
+go('home', true);
+</script>
+
+</body></html>
